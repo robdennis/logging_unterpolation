@@ -1,21 +1,61 @@
 # Copyright (c) 2011 Rob Dennis. See LICENSE for details
 
+import sys
 import logging
 
 def patch_logging():
-    logging.LogRecord = FormattingLogRecord
+    if sys.version_info >= (2, 6,) and sys.version_info <= (2, 7,):
+        logging.LogRecord = Python26FormattingLogRecord
+    elif sys.version_info >= (3, 2,):
+        # there's a misdirection done making:
+        # _logRecordFactory = LogRecord
+        # which means we need to patch both
+        logging._logRecordFactory = Python32FormattingLogRecord
+        logging.LogRecord = Python32FormattingLogRecord
+    else:
+        logging.LogRecord = FormattingLogRecord
 
-
-
+        
+# this class overrides te getMessage method, which does change between
+# python versions, so there are subclasses for any special cases
 class FormattingLogRecord(logging.LogRecord):
+    """
+    Overriding LogRecord to support PEP-3101 style string formatting
+    """
+    def _getUnterpolatedMessage(self, msg):
+        """
+        Returns the formatted string, will first attempt str.format and will
+        fallback to msg % self.args as it was originally
+        Broken out to support reusing the reformatting logic in all
+        the special case-handling subclassed of FormattingLogRecord
+        """
+        original_msg = msg
+        try:
+            msg = msg.format(*self.args)
+        except Exception:
+            # fall back to original formatting since there was an issue
+            msg = msg % self.args
+
+        if msg == original_msg:
+            # there must have been no string formatting methods
+            # used, given the presence of args without a change in the msg
+            # fall back to original formatting
+            msg = msg % self.args
+
+        return msg
+
+    # copy + pasted from python source, splitting out the 'un'teroplation
+    # to a separate method
     def getMessage(self):
         """
         Return the message for this LogRecord.
 
         Return the message for this LogRecord after merging any user-supplied
-        arguments with the message. Will attempt string formatting using the
-        formatting method, with fallback behavior to using string interpolation
-        as a backup
+        arguments with the message.
+
+        Will attempt string formatting using
+        PEP-3101 formatting syntax, with fallback behavior to using string
+        interpolation
         """
         if not logging._unicode: #if no unicode support...
             msg = str(self.msg)
@@ -27,27 +67,46 @@ class FormattingLogRecord(logging.LogRecord):
                 except UnicodeError:
                     msg = self.msg      #Defer encoding till later
 
-        def _fallback_to_interpolation(_msg):
-            """
-            convenience method to fallback to the original behavior of string
-            interpolation
-
-            :param _msg: the message to interpolate using the % operator
-            :return: _msg % self.args
-            """
-            return _msg % self.args
-
         if self.args:
-            original_msg = msg
-            try:
-                msg = msg.format(*self.args)
-            except Exception:
-                # fall back to original formatting
-                msg = _fallback_to_interpolation(msg)
+            msg = self._getUnterpolatedMessage(msg)
 
-            if msg == original_msg:
-                # there must have been no string formatting methods
-                # used, given the presence of args without a change in the msg
-                msg = _fallback_to_interpolation(msg)
+        return msg
 
+
+# Python26 had a different getMessage method, apparently re-written for py27
+class Python26FormattingLogRecord(FormattingLogRecord):
+    def getMessage(self):
+        """
+        Return the message for this LogRecord.
+
+        Return the message for this LogRecord after merging any user-supplied
+        arguments with the message.
+        """
+        if not hasattr(logging.types, "UnicodeType"): #if no unicode support...
+            msg = str(self.msg)
+        else:
+            msg = self.msg
+            if type(msg) not in (logging.types.UnicodeType,
+                                 logging.types.StringType):
+                try:
+                    msg = str(self.msg)
+                except UnicodeError:
+                    msg = self.msg      #Defer encoding till later
+        if self.args:
+            msg = self._getUnterpolatedMessage(msg)
+        return msg
+
+
+# Python32 has a new getMessage method and I'm assuming this is the way forward
+class Python32FormattingLogRecord(FormattingLogRecord):
+    def getMessage(self):
+        """
+        Return the message for this LogRecord.
+
+        Return the message for this LogRecord after merging any user-supplied
+        arguments with the message.
+        """
+        msg = str(self.msg)
+        if self.args:
+            msg = self._getUnterpolatedMessage(msg)
         return msg
