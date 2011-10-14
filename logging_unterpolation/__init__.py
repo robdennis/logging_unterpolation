@@ -4,6 +4,10 @@ import sys
 import logging
 
 def patch_logging():
+    """
+    patch the logging LogRecord based on the python version calling the patch
+    method
+    """
     if sys.version_info >= (2, 6,) and sys.version_info <= (2, 7,):
         logging.LogRecord = Python26FormattingLogRecord
     elif sys.version_info >= (3, 2,):
@@ -15,7 +19,7 @@ def patch_logging():
     else:
         logging.LogRecord = FormattingLogRecord
 
-        
+
 # this class overrides te getMessage method, which does change between
 # python versions, so there are subclasses for any special cases
 class FormattingLogRecord(logging.LogRecord):
@@ -32,11 +36,19 @@ class FormattingLogRecord(logging.LogRecord):
         original_msg = msg
         try:
             msg = msg.format(*self.args)
-        except Exception:
-            # fall back to original formatting since there was an issue
-            msg = msg % self.args
+        except ValueError:
+            # From PEP-3101, value errors are of the type raised by the format
+            # method itself, so see if we should fall back to original
+            # formatting since there was an issue
+            if '%' in msg:
+                msg = msg % self.args
+            else:
+                # we should NOT fall back, since there's no possible string
+                # interpolation happening and we want a meaningful error
+                # message
+                raise
 
-        if msg == original_msg:
+        if msg == original_msg and '%' in msg:
             # there must have been no string formatting methods
             # used, given the presence of args without a change in the msg
             # fall back to original formatting

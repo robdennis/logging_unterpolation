@@ -2,7 +2,7 @@ from os.path import dirname, join
 from setuptools import setup, find_packages
 from sys import version_info
 
-__version__ = '0.1.0a1'
+__version__ = '0.1.0a2'
 
 def read(name, *args):
     try:
