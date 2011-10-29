@@ -35,7 +35,17 @@ class FormattingLogRecord(logging.LogRecord):
         """
         original_msg = msg
         try:
-            msg = msg.format(*self.args)
+            if isinstance(self.args, dict):
+                # special case handing for unpatched logging supporting
+                # statements like:
+                # logging.debug("a %(a)d b %(b)s", {'a':1, 'b':2})
+                args = (self.args,)
+            else:
+                # typical case where the LogRecord init didn't do anything
+                # to the passed arguments
+                args = self.args
+
+            msg = msg.format(*args)
         except ValueError:
             # From PEP-3101, value errors are of the type raised by the format
             # method itself, so see if we should fall back to original
@@ -51,7 +61,8 @@ class FormattingLogRecord(logging.LogRecord):
         if msg == original_msg and '%' in msg:
             # there must have been no string formatting methods
             # used, given the presence of args without a change in the msg
-            # fall back to original formatting
+            # fall back to original formatting, including the special case
+            # for one passed dictionary argument
             msg = msg % self.args
 
         return msg
