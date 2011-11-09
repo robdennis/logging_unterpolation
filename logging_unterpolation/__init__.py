@@ -16,6 +16,10 @@ def patch_logging():
         # which means we need to patch both
         logging._logRecordFactory = Python32FormattingLogRecord
         logging.LogRecord = Python32FormattingLogRecord
+    elif sys.version_info < (2, 6,):
+        # python versions before 2.6 don't have the string format syntax and 
+        # shouldn't be patched
+        pass
     else:
         logging.LogRecord = FormattingLogRecord
 

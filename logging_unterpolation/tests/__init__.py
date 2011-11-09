@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import sys
 
 try:
@@ -90,6 +91,8 @@ class BaseLoggerTestCase(unittest.TestCase):
         self.assertEqual(expected, msg % args)
         self.assertLogOutput(expected, msg, *args)
 
+    # there's a separate test for patching on python versions that don't include format
+    @unittest.skipIf(sys.version_info < (2,6), 'skipping pep 3101 syntax on old python')
     def test_pep3101_syntax(self):
         """
         test that using str.format syntax fails as expected when unpatched
@@ -113,6 +116,8 @@ class PatchedTestsMixin(object):
     when the logging module is patched
     """
 
+    # there's a separate test for patching on python versions that don't include format
+    @unittest.skipIf(sys.version_info < (2,6), 'skipping pep 3101 syntax on old python')
     def test_pep3101_syntax(self):
         """
         override the base to show that it does work as expected
@@ -124,3 +129,4 @@ class PatchedTestsMixin(object):
 
         self.assertEqual(expected, msg.format(*args))
         self.assertLogOutput(expected, msg, *args)
+
