@@ -17,6 +17,10 @@ else:
     except ImportError:
         from StringIO import StringIO
 
+class LoggingStatementNotEqualError(Exception):
+    """
+    Special exception for a failure to have an expected log message
+    """
 
 class BaseLoggerTestCase(unittest.TestCase):
     """
@@ -44,8 +48,17 @@ class BaseLoggerTestCase(unittest.TestCase):
 
         self.make_buffered_logger().info(msg, *args)
         self.buffer.flush()
+        actual = self.buffer.getvalue()
         # log messages always end in a carriage return, so account for that
-        self.assertEqual(self.buffer.getvalue(), expected + '\n')
+        expected += '\n'
+        # reset the buffer for future tests
+        self.buffer = StringIO()
+        try:
+            self.assertEqual(actual, expected)
+        except AssertionError:
+            raise LoggingStatementNotEqualError('message not expected: %r '
+                                                '!= %r' % (actual, expected))
+
 
     def make_buffered_logger(self, buffer=None, name='test_log'):
         """
@@ -81,15 +94,39 @@ class BaseLoggerTestCase(unittest.TestCase):
 
     def test_modulo_syntax(self):
         """
-        test that a message with a format using %-syntax works as exoected
+        test that a message with a format using %-syntax works as expected
         """
 
-        expected = 'hello world!'
-        msg = '%s %s!'
-        args = ('hello', 'world')
 
-        self.assertEqual(expected, msg % args)
-        self.assertLogOutput(expected, msg, *args)
+        test_items = [
+            ('hello world!', '%s %s!', ('hello', 'world')),
+            ('hello world!', '%(word1)s %(word2)s!', dict(word1='hello',
+                                                          word2='world')),
+        ]
+
+        for expected, msg, args in test_items:
+            self.assertEqual(expected, msg % args)
+            if isinstance(args, dict):
+                args = (args,)
+            self.assertLogOutput(expected, msg, *args)
+
+    def _pep3101_test(self):
+        """
+        convenience function for testing pep3101 syntax and allowing test cases
+        to assert based on the results
+        """
+
+        test_dict = dict(word1='hello', word2='world')
+        test_items = [
+            ('hello world!', '{0} {1}!', ('hello', 'world')),
+            (repr(test_dict), '{0!r}', (test_dict,))
+        ]
+
+        for expected, msg, args in test_items:
+#            self.assertEqual(expected, msg.format(*args))
+            self.assertLogOutput(expected, msg, *args)
+
+
 
     # there's a separate test for patching on python versions that don't include format
     @unittest.skipIf(sys.version_info < (2,6), 'skipping pep 3101 syntax on old python')
@@ -98,16 +135,8 @@ class BaseLoggerTestCase(unittest.TestCase):
         test that using str.format syntax fails as expected when unpatched
         """
 
-        expected = 'hello world!'
-        msg = '{0} {1}!'
-        args = ('hello', 'world')
-
-        self.assertEqual(expected, msg.format(*args))
-        # since the message SHOULD be equal, as shown in the previous assertion
-        # if this assertion fails, then formatting the message didn't work
-        # (which is expected in this case)
-        with self.assertRaises(AssertionError):
-            self.assertLogOutput(expected, msg, *args)
+        with self.assertRaises(LoggingStatementNotEqualError):
+            self._pep3101_test()
 
 
 class PatchedTestsMixin(object):
@@ -123,10 +152,4 @@ class PatchedTestsMixin(object):
         override the base to show that it does work as expected
         """
 
-        expected = 'hello world!'
-        msg = '{0} {1}!'
-        args = ('hello', 'world')
-
-        self.assertEqual(expected, msg.format(*args))
-        self.assertLogOutput(expected, msg, *args)
-
+        self._pep3101_test()
