@@ -29,7 +29,7 @@ setup(
     author_email='rdennis+unterpolation@gmail.com',
     tests_require=test_requirements,
     test_suite='unittest2.collector',
-    url='http://arclite-emp.com/',
+    url='https://bitbucket.org/rdennis463/logging_unterpolation',
     packages=find_packages(exclude=['ez_setup']),
     classifiers=[
     'License :: OSI Approved :: MIT License',
