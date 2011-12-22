@@ -6,12 +6,12 @@ logging_unterpolation is a very simple module that will patch the built-in loggi
 Here's a basic example:
 
     >>> import logging
-    from logging_unterpolation import patch_logging
-    patch_logging()
-    logging.basicConfig(level=logging.DEBUG)
-    logging.debug('test')
+    >>> from logging_unterpolation import patch_logging
+    >>> logging.basicConfig(level=logging.DEBUG)
+    >>> logging.debug('test')
     DEBUG:root:test
-    logging.debug('%s', 'test')
+    >>> logging.debug('%s', 'test') # example of built-in string interpolation in log messages
     DEBUG:root:test
-    logging.debug('{0}', 'test')
+    >>> patch_logging()
+    >>> logging.debug('{0}', 'test') # format syntax not supported unless patched
     DEBUG:root:test
