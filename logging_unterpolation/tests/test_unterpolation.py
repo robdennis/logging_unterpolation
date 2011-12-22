@@ -8,6 +8,18 @@ from logging_unterpolation.tests import BaseLoggerTestCase, PatchedTestsMixin
 
 # PatchedTestsMixin must go first to override the base methods
 
+class TestPerformaceResults(unittest.TestCase):
+    """
+    Leverage the unittest harness to have tox output performance data on each python version tested
+    """
+    @unittest.skipIf(sys.version_info < (2,6), 'not doing performance tests on old versions')
+    def test_performance(self):
+        """
+        Write out performance results to a file
+        """
+        import logging_unterpolation.tests.performance_results
+        
+
 class TestSingleFileImportCase(PatchedTestsMixin, BaseLoggerTestCase):
     """
     Tests that the simplest cases, importing logging and patching within
