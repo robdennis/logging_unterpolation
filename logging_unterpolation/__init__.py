@@ -8,9 +8,11 @@ def patch_logging():
     patch the logging LogRecord based on the python version calling the patch
     method
     """
-    if sys.version_info >= (2, 6,) and sys.version_info <= (2, 7,):
+    if sys.version_info >= (2, 6,) and sys.version_info < (2, 7,):
+        # Python 2.6 had its own format for Log Records
         logging.LogRecord = Python26FormattingLogRecord
     elif sys.version_info >= (3, 2,):
+        # Python 3.2 and presumably later have a new form
         # there's a misdirection done making:
         # _logRecordFactory = LogRecord
         # which means we need to patch both
@@ -21,11 +23,13 @@ def patch_logging():
         # shouldn't be patched
         pass
     else:
+        # Everything else (2.7.x - 3.1.x) use this style of Log Record
         logging.LogRecord = FormattingLogRecord
 
 
 # this class overrides te getMessage method, which does change between
 # python versions, so there are subclasses for any special cases
+# this is the Python 2.7.x to 3.1.x case
 class FormattingLogRecord(logging.LogRecord):
     """
     Overriding LogRecord to support PEP-3101 style string formatting
