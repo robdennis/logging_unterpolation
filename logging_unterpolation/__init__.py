@@ -8,11 +8,9 @@ def patch_logging():
     patch the logging LogRecord based on the python version calling the patch
     method
     """
-    if sys.version_info >= (2, 6,) and sys.version_info < (2, 7,):
-        # Python 2.6 had its own format for Log Records
+    if sys.version_info >= (2, 6,) and sys.version_info <= (2, 7,):
         logging.LogRecord = Python26FormattingLogRecord
     elif sys.version_info >= (3, 2,):
-        # Python 3.2 and presumably later have a new form
         # there's a misdirection done making:
         # _logRecordFactory = LogRecord
         # which means we need to patch both
@@ -23,13 +21,11 @@ def patch_logging():
         # shouldn't be patched
         pass
     else:
-        # Everything else (2.7.x - 3.1.x) use this style of Log Record
         logging.LogRecord = FormattingLogRecord
 
 
 # this class overrides te getMessage method, which does change between
 # python versions, so there are subclasses for any special cases
-# this is the Python 2.7.x to 3.1.x case
 class FormattingLogRecord(logging.LogRecord):
     """
     Overriding LogRecord to support PEP-3101 style string formatting
@@ -42,18 +38,29 @@ class FormattingLogRecord(logging.LogRecord):
         the special case-handling subclassed of FormattingLogRecord
         """
         original_msg = msg
-        try:
-            if isinstance(self.args, dict):
-                # special case handing for unpatched logging supporting
-                # statements like:
-                # logging.debug("a %(a)d b %(b)s", {'a':1, 'b':2})
-                args = (self.args,)
-            else:
-                # typical case where the LogRecord init didn't do anything
-                # to the passed arguments
-                args = self.args
+        if isinstance(self.args, dict):
+            # special case handing for unpatched logging supporting
+            # statements like:
+            # logging.debug("a %(a)d b %(b)s", {'a':1, 'b':2})
+            args = (self.args,)
+        else:
+            # typical case where the LogRecord init didn't do anything
+            # to the passed arguments
+            args = self.args
 
+        try:
             msg = msg.format(*args)
+        except UnicodeEncodeError:
+            global basestring
+            if sys.version_info >= (3, 0,):
+                # basestring doesn't exist in python 3.0+ so make a reference
+                # here so the same log can work on all python versions
+                basestring = (str,)
+            # handle the attempt to print utf-8 encoded data, similar to
+            # %-interpolation's handling of unicode formatting non-ascii
+            # strings
+            msg = msg.format(*[repr(a) if isinstance(a, basestring) else a
+                               for a in args])
         except ValueError:
             # From PEP-3101, value errors are of the type raised by the format
             # method itself, so see if we should fall back to original
