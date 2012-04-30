@@ -51,7 +51,7 @@ class FormattingLogRecord(logging.LogRecord):
         try:
             msg = msg.format(*args)
         except UnicodeEncodeError:
-            # This is most likely due formatting a non-ascii string argument
+            # This is most likely due to formatting a non-ascii string argument
             # into a bytestring, which the %-operator automatically handles
             # by casting the left side (the "msg" variable) in this context
             # to unicode. So we'll do that here
