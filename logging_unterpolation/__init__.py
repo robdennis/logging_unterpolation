@@ -51,16 +51,24 @@ class FormattingLogRecord(logging.LogRecord):
         try:
             msg = msg.format(*args)
         except UnicodeEncodeError:
-            global basestring
+            # This is most likely due formatting a non-ascii string argument
+            # into a bytestring, which the %-operator automatically handles
+            # by casting the left side (the "msg" variable) in this context
+            # to unicode. So we'll do that here
+
             if sys.version_info >= (3, 0,):
-                # basestring doesn't exist in python 3.0+ so make a reference
-                # here so the same log can work on all python versions
-                basestring = (str,)
+                # this is most likely unnecessary on python 3, but it's here
+                # for completeness, in the case of someone manually creating
+                # a bytestring
+                unicode_type = str
+            else:
+                unicode_type = unicode
+
             # handle the attempt to print utf-8 encoded data, similar to
             # %-interpolation's handling of unicode formatting non-ascii
             # strings
-            msg = msg.format(*[repr(a) if isinstance(a, basestring) else a
-                               for a in args])
+            msg = unicode_type(msg).format(*args)
+
         except ValueError:
             # From PEP-3101, value errors are of the type raised by the format
             # method itself, so see if we should fall back to original
