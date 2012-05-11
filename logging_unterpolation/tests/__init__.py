@@ -1,4 +1,5 @@
-from __future__ import with_statement
+# coding=utf-8
+from __future__ import with_statement, unicode_literals
 import sys
 
 try:
@@ -11,16 +12,8 @@ if sys.version_info >= (3,):
     #http://bugs.python.org/issue8025
     from io import StringIO
 else:
-    # Python 2.x case
-    try:
-        from cStringIO import StringIO
-    except ImportError:
-        from StringIO import StringIO
-
-class LoggingStatementNotEqualError(Exception):
-    """
-    Special exception for a failure to have an expected log message
-    """
+    # Python 2.x case, explicitly NOT using cStringIO due to unicode edge cases
+    from StringIO import StringIO
 
 class BaseLoggerTestCase(unittest.TestCase):
     """
@@ -53,12 +46,9 @@ class BaseLoggerTestCase(unittest.TestCase):
         expected += '\n'
         # reset the buffer for future tests
         self.buffer = StringIO()
-        try:
-            self.assertEqual(actual, expected)
-        except AssertionError:
-            raise LoggingStatementNotEqualError('message not expected: %r '
-                                                '!= %r' % (actual, expected))
 
+        self.assertEqual(actual, expected, 'message not expected:'
+                                           ' %r != %r' % (actual, expected))
 
     def make_buffered_logger(self, buffer=None, name='test_log'):
         """
@@ -102,12 +92,18 @@ class BaseLoggerTestCase(unittest.TestCase):
             ('hello world!', '%s %s!', ('hello', 'world')),
             ('hello world!', '%(word1)s %(word2)s!', dict(word1='hello',
                                                           word2='world')),
+            ('Dramatis Personæ', '%s %s', ('Dramatis', 'Personæ'))
         ]
-
+            
         for expected, msg, args in test_items:
             self.assertEqual(expected, msg % args)
             if isinstance(args, dict):
                 args = (args,)
+            self.assertLogOutput(expected, msg, *args)
+
+        if sys.version_info < (3, 0):
+            # special case test for issue #4
+            expected, msg, args = ('Dramatis Personæ', b'%s %s', ('Dramatis', 'Personæ'))
             self.assertLogOutput(expected, msg, *args)
 
     def _pep3101_test(self):
@@ -119,14 +115,20 @@ class BaseLoggerTestCase(unittest.TestCase):
         test_dict = dict(word1='hello', word2='world')
         test_items = [
             ('hello world!', '{0} {1}!', ('hello', 'world')),
-            (repr(test_dict), '{0!r}', (test_dict,))
+            (repr(test_dict), '{0!r}', (test_dict,)),
+            ('Dramatis Personæ', '{0} {1}', ('Dramatis', 'Personæ'))
         ]
-
+        
         for expected, msg, args in test_items:
-#            self.assertEqual(expected, msg.format(*args))
+            self.assertEqual(expected, msg.format(*args))
             self.assertLogOutput(expected, msg, *args)
 
-
+        if sys.version_info < (3, 0):
+            # special case test for issue #4
+            expected, msg, args = ('Dramatis Personæ', b'{0} {1}', ('Dramatis', 'Personæ'))
+            with self.assertRaises(UnicodeEncodeError):
+                self.assertEqual(expected, msg.format(*args))
+            self.assertLogOutput(expected, msg, *args)
 
     # there's a separate test for patching on python versions that don't include format
     @unittest.skipIf(sys.version_info < (2,6), 'skipping pep 3101 syntax on old python')
@@ -135,9 +137,8 @@ class BaseLoggerTestCase(unittest.TestCase):
         test that using str.format syntax fails as expected when unpatched
         """
 
-        with self.assertRaises(LoggingStatementNotEqualError):
+        with self.assertRaises(AssertionError):
             self._pep3101_test()
-
 
 class PatchedTestsMixin(object):
     """
