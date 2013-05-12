@@ -16,3 +16,6 @@ DEBUG:root:test
 >>> logging.debug('{0}', 'test') # format syntax not supported unless patched
 DEBUG:root:test
 ```
+
+We're on Travis-CI:
+https://travis-ci.org/rdennis463/logging_unterpolation
