@@ -21,7 +21,7 @@ setup(
     long_description=read('README.md'),
     author='Rob Dennis',
     author_email='rdennis+unterpolation@gmail.com',
-    tests_require='nose',
+    tests_require=['nose'],
     test_suite='nose.collector',
     url='https://github.com/rdennis463/logging_unterpolation',
     packages=find_packages(exclude=['ez_setup']),
