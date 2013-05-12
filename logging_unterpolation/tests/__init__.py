@@ -2,7 +2,11 @@
 from __future__ import with_statement, unicode_literals
 import sys
 
-import unittest
+try:
+    # python 2.6 doesn't have a setupClass
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 if sys.version_info >= (3,):
     # Python 3.x case (io does exist in 2.7, but better to use the 2.x case):

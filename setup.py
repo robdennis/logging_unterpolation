@@ -14,6 +14,10 @@ def read(name, *args):
 
 extra_setup = {}
 
+test_requirements = ['nose']
+if version_info < (2, 7):
+    test_requirements.append('unittest2')
+
 setup(
     name='logging_unterpolation',
     version=__version__,
@@ -21,7 +25,7 @@ setup(
     long_description=read('README.md'),
     author='Rob Dennis',
     author_email='rdennis+unterpolation@gmail.com',
-    tests_require=['nose'],
+    tests_require=test_requirements,
     test_suite='nose.collector',
     url='https://github.com/rdennis463/logging_unterpolation',
     packages=find_packages(exclude=['ez_setup']),
