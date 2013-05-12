@@ -1,0 +1,110 @@
+results for 2.6.7 (r267:88850, Jul 31 2011, 19:30:54) 
+[GCC 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2335.15.00)], on Thursday 22. December 2011, over 1000 records
+unpatched logger, WARNING level, logging statement: logging.debug(i)
+3817.73 usec/pass
+unpatched logger, WARNING level, logging statement: logging.debug("%d", i)
+3905.52 usec/pass
+unpatched logger, DEBUG level, logging statement: logging.debug(i)
+3809.66 usec/pass
+unpatched logger, DEBUG level, logging statement: logging.debug("%d", i)
+3893.43 usec/pass
+patched logger, WARNING level, logging statement: logging.debug(i)
+3808.86 usec/pass
+patched logger, WARNING level, logging statement: logging.debug("%d", i)
+3867.23 usec/pass
+patched logger, WARNING level, logging statement: logging.debug("{0}", i)
+3889.80 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug(i)
+3801.19 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug("%d", i)
+3865.43 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug("{0}", i)
+3885.61 usec/pass
+results for 2.7.1 (r271:86832, Jun 25 2011, 05:09:01) 
+[GCC 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2335.15.00)], on Thursday 22. December 2011, over 1000 records
+unpatched logger, WARNING level, logging statement: logging.debug(i)
+1679.16 usec/pass
+unpatched logger, WARNING level, logging statement: logging.debug("%d", i)
+1748.09 usec/pass
+unpatched logger, DEBUG level, logging statement: logging.debug(i)
+1672.65 usec/pass
+unpatched logger, DEBUG level, logging statement: logging.debug("%d", i)
+1743.85 usec/pass
+patched logger, WARNING level, logging statement: logging.debug(i)
+1678.53 usec/pass
+patched logger, WARNING level, logging statement: logging.debug("%d", i)
+1743.31 usec/pass
+patched logger, WARNING level, logging statement: logging.debug("{0}", i)
+1722.55 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug(i)
+1663.03 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug("%d", i)
+1736.86 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug("{0}", i)
+1740.77 usec/pass
+results for 3.0.1 (r301:69597, Feb 14 2009, 19:03:52) 
+[GCC 4.0.1 (Apple Inc. build 5490)], on Thursday 22. December 2011, over 1000 records
+unpatched logger, WARNING level, logging statement: logging.debug(i)
+1871.83 usec/pass
+unpatched logger, WARNING level, logging statement: logging.debug("%d", i)
+1908.55 usec/pass
+unpatched logger, DEBUG level, logging statement: logging.debug(i)
+1845.45 usec/pass
+unpatched logger, DEBUG level, logging statement: logging.debug("%d", i)
+1934.98 usec/pass
+patched logger, WARNING level, logging statement: logging.debug(i)
+1869.12 usec/pass
+patched logger, WARNING level, logging statement: logging.debug("%d", i)
+1920.12 usec/pass
+patched logger, WARNING level, logging statement: logging.debug("{0}", i)
+1925.98 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug(i)
+1865.32 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug("%d", i)
+1914.19 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug("{0}", i)
+1928.61 usec/pass
+results for 3.1.4 (v3.1.4:c918ec9f3a76, Jun 11 2011, 14:37:17) 
+[GCC 4.0.1 (Apple Inc. build 5493)], on Thursday 22. December 2011, over 1000 records
+unpatched logger, WARNING level, logging statement: logging.debug(i)
+1809.03 usec/pass
+unpatched logger, WARNING level, logging statement: logging.debug("%d", i)
+1911.43 usec/pass
+unpatched logger, DEBUG level, logging statement: logging.debug(i)
+1790.95 usec/pass
+unpatched logger, DEBUG level, logging statement: logging.debug("%d", i)
+1912.33 usec/pass
+patched logger, WARNING level, logging statement: logging.debug(i)
+1778.80 usec/pass
+patched logger, WARNING level, logging statement: logging.debug("%d", i)
+1904.88 usec/pass
+patched logger, WARNING level, logging statement: logging.debug("{0}", i)
+1911.21 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug(i)
+1795.74 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug("%d", i)
+1907.89 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug("{0}", i)
+1901.03 usec/pass
+results for 3.2.1 (default, Jul 23 2011, 11:19:51) 
+[GCC 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2335.15.00)], on Thursday 22. December 2011, over 1000 records
+unpatched logger, WARNING level, logging statement: logging.debug(i)
+2163.98 usec/pass
+unpatched logger, WARNING level, logging statement: logging.debug("%d", i)
+2235.42 usec/pass
+unpatched logger, DEBUG level, logging statement: logging.debug(i)
+2144.05 usec/pass
+unpatched logger, DEBUG level, logging statement: logging.debug("%d", i)
+2232.52 usec/pass
+patched logger, WARNING level, logging statement: logging.debug(i)
+2163.34 usec/pass
+patched logger, WARNING level, logging statement: logging.debug("%d", i)
+2242.12 usec/pass
+patched logger, WARNING level, logging statement: logging.debug("{0}", i)
+2245.42 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug(i)
+2164.72 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug("%d", i)
+2226.58 usec/pass
+patched logger, DEBUG level, logging statement: logging.debug("{0}", i)
+2235.44 usec/pass
