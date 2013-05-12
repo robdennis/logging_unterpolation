@@ -14,22 +14,16 @@ def read(name, *args):
 
 extra_setup = {}
 
-if version_info[0] == 3:
-    test_requirements = ['unittest2py3k']
-    extra_setup['use_2to3'] = True
-else:
-    test_requirements = ['unittest2']
-
 setup(
     name='logging_unterpolation',
     version=__version__,
     description='patch logging module to accept PEP-3101 formatting syntax',
-    long_description=read('README.rst'),
+    long_description=read('README.md'),
     author='Rob Dennis',
     author_email='rdennis+unterpolation@gmail.com',
-    tests_require=test_requirements,
-    test_suite='unittest2.collector',
-    url='https://bitbucket.org/rdennis463/logging_unterpolation',
+    tests_require='nose',
+    test_suite='nose.collector',
+    url='https://github.com/rdennis463/logging_unterpolation',
     packages=find_packages(exclude=['ez_setup']),
     classifiers=[
     'License :: OSI Approved :: MIT License',
