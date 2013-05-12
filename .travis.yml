@@ -5,7 +5,7 @@ python:
   - "3.2"
   - "3.3"
 # command to install dependencies
-script: nosetests
+script: python setup.py nosetests
 branches:
   only:
     - master
