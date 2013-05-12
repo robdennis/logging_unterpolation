@@ -3,12 +3,13 @@
 import sys
 import logging
 
+
 def patch_logging():
     """
     patch the logging LogRecord based on the python version calling the patch
     method
     """
-    if sys.version_info >= (2, 6,) and sys.version_info <= (2, 7,):
+    if (2, 6,) <= sys.version_info <= (2, 7,):
         logging.LogRecord = Python26FormattingLogRecord
     elif sys.version_info >= (3, 2,):
         # there's a misdirection done making:

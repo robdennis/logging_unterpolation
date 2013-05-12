@@ -2,10 +2,7 @@
 from __future__ import with_statement, unicode_literals
 import sys
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 
 if sys.version_info >= (3,):
     # Python 3.x case (io does exist in 2.7, but better to use the 2.x case):
@@ -15,22 +12,25 @@ else:
     # Python 2.x case, explicitly NOT using cStringIO due to unicode edge cases
     from StringIO import StringIO
 
+
 class BaseLoggerTestCase(unittest.TestCase):
     """
     base class for testing the patching of the logging module to support
     PEP-3101 formatting strings. This class does no patching of the logging
     method
+
+    Subclasses should import and/or patch logging in the appropriate manner
+    in either setUp or setUpClass
+
     """
     maxDiff = None
+
     def setUp(self):
         """
-        Setup a string buffer to capture log output, subclasses overriding this
-        setUp should import and patch logging in the appropriate manner
-        to guarantee the existence of the self.logger property
+        Setup a string buffer to capture log output
         """
 
         self.buffer = StringIO()
-
 
     def assertLogOutput(self, expected, msg, *args):
         """
@@ -50,10 +50,10 @@ class BaseLoggerTestCase(unittest.TestCase):
         self.assertEqual(actual, expected, 'message not expected:'
                                            ' %r != %r' % (actual, expected))
 
-    def make_buffered_logger(self, buffer=None, name='test_log'):
+    def make_buffered_logger(self, string_buffer=None, name='test_log'):
         """
         return a new logger instance, with the buffer set to buffer
-        :param buffer: a StringIO instance, if None (default), will use
+        :param string_buffer: a StringIO instance, if None (default), will use
             self.buffer
         :param name: the name of the log (default 'test_log')
         :return: logger instance with the handler set to stream to buffer
@@ -62,11 +62,11 @@ class BaseLoggerTestCase(unittest.TestCase):
         # anything, which is fine
         import logging
 
-        if buffer is None:
-            buffer = self.buffer
+        if string_buffer is None:
+            string_buffer = self.buffer
 
         log_format = logging.Formatter('%(message)s')
-        log_handler = logging.StreamHandler(self.buffer)
+        log_handler = logging.StreamHandler(string_buffer)
         _log = logging.getLogger(name)
         log_handler.setFormatter(log_format)
         _log.addHandler(log_handler)
@@ -87,7 +87,6 @@ class BaseLoggerTestCase(unittest.TestCase):
         test that a message with a format using %-syntax works as expected
         """
 
-
         test_items = [
             ('hello world!', '%s %s!', ('hello', 'world')),
             ('hello world!', '%(word1)s %(word2)s!', dict(word1='hello',
@@ -103,7 +102,8 @@ class BaseLoggerTestCase(unittest.TestCase):
 
         if sys.version_info < (3, 0):
             # special case test for issue #4
-            expected, msg, args = ('Dramatis Personæ', b'%s %s', ('Dramatis', 'Personæ'))
+            expected, msg, args = ('Dramatis Personæ', b'%s %s',
+                                   ('Dramatis', 'Personæ'))
             self.assertLogOutput(expected, msg, *args)
 
     def _pep3101_test(self):
@@ -125,20 +125,19 @@ class BaseLoggerTestCase(unittest.TestCase):
 
         if sys.version_info < (3, 0):
             # special case test for issue #4
-            expected, msg, args = ('Dramatis Personæ', b'{0} {1}', ('Dramatis', 'Personæ'))
+            expected, msg, args = ('Dramatis Personæ', b'{0} {1}',
+                                   ('Dramatis', 'Personæ'))
             with self.assertRaises(UnicodeEncodeError):
                 self.assertEqual(expected, msg.format(*args))
             self.assertLogOutput(expected, msg, *args)
 
-    # there's a separate test for patching on python versions that don't include format
-    @unittest.skipIf(sys.version_info < (2,6), 'skipping pep 3101 syntax on old python')
     def test_pep3101_syntax(self):
         """
         test that using str.format syntax fails as expected when unpatched
         """
 
-        with self.assertRaises(AssertionError):
-            self._pep3101_test()
+        self.assertRaises(AssertionError, self._pep3101_test)
+
 
 class PatchedTestsMixin(object):
     """
@@ -146,8 +145,6 @@ class PatchedTestsMixin(object):
     when the logging module is patched
     """
 
-    # there's a separate test for patching on python versions that don't include format
-    @unittest.skipIf(sys.version_info < (2,6), 'skipping pep 3101 syntax on old python')
     def test_pep3101_syntax(self):
         """
         override the base to show that it does work as expected
