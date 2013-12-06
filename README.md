@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/robdennis/logging_unterpolation.png?branch=master)](https://travis-ci.org/robdennis/logging_unterpolation)[![Coverage Status](https://coveralls.io/repos/robdennis/logging_unterpolation/badge.png)](https://coveralls.io/r/robdennis/logging_unterpolation)
+
 logging_unterpolation
 ==========================
 logging_unterpolation is a very simple module that will patch python's built-in logging module to accept PEP-3101 compliant string formatting (using the str.format method) as well as falling back to accept the original string interpolation operator (% or 'modulo')
@@ -17,5 +19,3 @@ DEBUG:root:test
 DEBUG:root:test
 ```
 
-We're on Travis-CI:
-https://travis-ci.org/rdennis463/logging_unterpolation
