@@ -27,7 +27,7 @@ setup(
     author_email='rdennis+unterpolation@gmail.com',
     tests_require=test_requirements,
     test_suite='nose.collector',
-    url='https://github.com/rdennis463/logging_unterpolation',
+    url='https://github.com/robdennis/logging_unterpolation',
     packages=find_packages(exclude=['ez_setup']),
     classifiers=[
     'License :: OSI Approved :: MIT License',
