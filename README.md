@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/robdennis/logging_unterpolation.png?branch=master)](https://travis-ci.org/robdennis/logging_unterpolation)[![Downloads](https://pypip.in/d/logging_unterpolation/badge.png)](https://crate.io/packages/logging_unterpolation)[![Downloads](https://pypip.in/v/logging_unterpolation/badge.png)](https://crate.io/packages/logging_unterpolation)
+[![Build Status](https://travis-ci.org/robdennis/logging_unterpolation.png?branch=master)](https://travis-ci.org/robdennis/logging_unterpolation)[![Downloads](https://img.shields.io/pypi/dm/logging_unterpolation.svg)](https://crate.io/packages/logging_unterpolation)[![Downloads](https://img.shields.io/pypi/v/logging_unterpolation.svg)](https://crate.io/packages/logging_unterpolation)
 
 logging_unterpolation
 ==========================
